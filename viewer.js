@@ -33,6 +33,7 @@ function showPage(index) {
   if (index >= pageHandles.length) {
     return;
   }
+  currentPageIndex = index;
   setPage(RIGHT_PAGE, pageHandles[index]);
 
   if (index + 1 >= pageHandles.length) {
@@ -44,6 +45,7 @@ function showPage(index) {
 
 async function loadDirectory() {
   const dir = await window.chooseFileSystemEntries({type: 'openDirectory'});
+  pageHandles.length = 0;
   for await (const entry of dir.getEntries()) {
     pageHandles.push(entry);
   }
@@ -53,19 +55,27 @@ async function loadDirectory() {
   showPage(0);
 }
 
+function adjustParity() {
+  if (currentPageIndex % 2 == 0) {
+    showPage(Math.min(pageHandles.length, currentPageIndex + 1));
+  } else {
+    showPage(Math.max(0, currentPageIndex - 1));
+  }
+}
+
 function showNextPage() {
-  currentPageIndex = Math.min(pageHandles.length, currentPageIndex + 2);
-  showPage(currentPageIndex);
+  showPage(Math.min(pageHandles.length, currentPageIndex + 2));
 }
 
 function showPreviousPage() {
-  currentPageIndex = Math.max(0, currentPageIndex - 2);
-  showPage(currentPageIndex);
+  showPage(Math.max(0, currentPageIndex - 2));
 }
 
 function onDOMContentLoaded() {
   document.querySelector('#select-folder')
       .addEventListener('mouseup', loadDirectory);
+  document.querySelector('#adjust-parity')
+      .addEventListener('mouseup', adjustParity);
   document.querySelector(LEFT_PAGE).addEventListener('mouseup', showNextPage);
   document.querySelector(RIGHT_PAGE)
       .addEventListener('mouseup', showPreviousPage);
