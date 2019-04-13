@@ -5,26 +5,57 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Manga</title>
+  <title>Image Viewer</title>
   <script src="viewer.js"></script>
   <style>
     body {
+      background-color: black;
+      height: 100vh;
       margin: 0;
+      overflow: hidden;
+      text-align: center;
+      width: 100vw;
+    }
+
+    button {
+      height: 50px;
     }
 
     img {
+      float: left;
       height: 100vh;
+    }
+
+    #pages {
+      display: inline-block;
+      margin: 0 auto;
+      overflow: auto;
+    }
+
+    #scrollable-container {
+      /* So the width will be 100% + 17px */
+      box-sizing: content-box;
+      height: 100%;
+      /* Increase/decrease this value for cross-browser compatibility */
+      padding-right: 17px;
+      overflow-y: scroll;
+      width: 100%;
     }
   </style>
 </head>
 
 <body>
-  <div>
-    <img id="left-page" />
-    <img id="right-page" />
+  <div id="scrollable-container">
+    <div>
+      <button id="select-folder">Select folder</button>
+      <button id="adjust-parity">Adjust parity</button>
+      <button id="toggle-fullscreen">Toggle fullscreen</button>
+    </div>
+    <div id="pages">
+      <img id="left-page" />
+      <img id="right-page" />
+    </div>
   </div>
-  <button id="select-folder">Select folder</button>
-  <button id="adjust-parity">Adjust parity</button>
 </body>
 
 </html>
