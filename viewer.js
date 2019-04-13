@@ -31,8 +31,6 @@ async function setPage(elementId, pageHandle) {
 
 function showPage(index) {
   if (index >= pageHandles.length) {
-    document.querySelector(RIGHT_PAGE).src = '';
-    document.querySelector(LEFT_PAGE).src = '';
     return;
   }
   setPage(RIGHT_PAGE, pageHandles[index]);
@@ -49,6 +47,9 @@ async function loadDirectory() {
   for await (const entry of dir.getEntries()) {
     pageHandles.push(entry);
   }
+  pageHandles.sort((handle1, handle2) => {
+    return handle1.name.localeCompare(handle2.name);
+  })
   showPage(0);
 }
 
