@@ -8,6 +8,12 @@ const RUNTIME = 'runtime';
 const PRECACHE_URLS = [
   'viewer.html',
   'viewer.js',
+  'Roboto-Thin.ttf',
+  'images/agenda.png',
+  'images/arrow_right.png',
+  'images/folder_open.png',
+  'images/one.png',
+  'images/reader.png',
 ];
 
 // The install handler takes care of precaching the resources we always need.

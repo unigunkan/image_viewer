@@ -8,8 +8,14 @@
   <title>Image Viewer</title>
   <script src="viewer.js"></script>
   <style>
+    @font-face {
+      font-family: 'Roboto-Thin';
+      src: url('Roboto-Thin.ttf') format('truetype');
+    }
+
     body {
       background-color: black;
+      font-family: 'Roboto-Thin', Arial, Helvetica, sans-serif;
       height: 100vh;
       margin: 0;
       overflow: hidden;
@@ -19,6 +25,12 @@
 
     button {
       height: 50px;
+    }
+
+    .button-icon {
+      height: 25px;
+      padding-bottom: 5px;
+      vertical-align: middle;
     }
 
     .page-image {
@@ -44,18 +56,43 @@
       overflow-y: scroll;
       width: 100%;
     }
+
+    .toolbar-button {
+      color: white;
+      cursor: pointer;
+      font-size: 25px;
+      padding: 10px;
+    }
+
+    #toolbar {
+      padding: 10px;
+    }
   </style>
 </head>
 
 <body>
   <div id="scrollable-container">
-    <div>
-      <button id="select-folder">Select folder</button>
-      <button id="adjust-parity">Parity</button>
-      <button id="toggle-direction">Direction</button>
-      <button id="toggle-pages-shown">Number of pages</button>
-      <button id="go-to-first-page">First page</button>
-      <button id="toggle-fullscreen" style="display:none">Toggle fullscreen</button>
+    <div id="toolbar">
+      <a id="select-folder" class="toolbar-button">
+        <img class="button-icon" src="images/folder_open.png" />
+        Select folder
+      </a>
+      <a id="toggle-direction" class="toolbar-button">
+        <img class="button-icon" src="images/arrow_right.png" />
+        Direction
+      </a>
+      <a id="adjust-parity" class="toolbar-button">
+        <img class="button-icon" src="images/agenda.png" />
+        Parity
+      </a>
+      <a id="toggle-pages-shown" class="toolbar-button">
+        <img class="button-icon" src="images/reader.png" />
+        Number of pages
+      </a>
+      <a id="go-to-first-page" class="toolbar-button">
+        <img class="button-icon" src="images/one.png" />
+        First page
+      </a>
     </div>
     <div id="pages">
       <img id="left-page" class="page-image" />

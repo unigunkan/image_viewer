@@ -109,14 +109,6 @@ function adjustParity() {
   }
 }
 
-function toggleFullscreen() {
-  if (document.fullscreen) {
-    document.exitFullscreen();
-  } else {
-    document.documentElement.requestFullscreen();
-  }
-}
-
 function showNextPage() {
   showPage(Math.min(
       pageHandles.length, state.currentPageIndex + state.pagesPerView));
@@ -232,8 +224,6 @@ function onDOMContentLoaded() {
       .addEventListener('mouseup', loadDirectory);
   document.querySelector('#adjust-parity')
       .addEventListener('mouseup', adjustParity);
-  document.querySelector('#toggle-fullscreen')
-      .addEventListener('mouseup', toggleFullscreen);
   document.querySelector(LEFT_PAGE).addEventListener(
       'mouseup', onLeftPageClicked);
   document.querySelector(RIGHT_PAGE)
