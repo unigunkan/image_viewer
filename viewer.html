@@ -21,15 +21,18 @@
       height: 50px;
     }
 
-    img {
+    .page-image {
       float: left;
-      height: 100vh;
+      max-height: 100%;
+      max-width: 50%;
     }
 
     #pages {
       display: inline-block;
+      height: 100vh;
       margin: 0 auto;
-      overflow: auto;
+      overflow: hidden;
+      max-width: 100vw;
     }
 
     #scrollable-container {
@@ -49,11 +52,14 @@
     <div>
       <button id="select-folder">Select folder</button>
       <button id="adjust-parity">Adjust parity</button>
-      <button id="toggle-fullscreen">Toggle fullscreen</button>
+      <button id="toggle-direction">Toggle direction</button>
+      <button id="toggle-pages-shown">Toggle number of pages</button>
+      <button id="go-to-first-page">Go to first page</button>
+      <button id="toggle-fullscreen" style="display:none">Toggle fullscreen</button>
     </div>
     <div id="pages">
-      <img id="left-page" />
-      <img id="right-page" />
+      <img id="left-page" class="page-image" />
+      <img id="right-page" class="page-image" />
     </div>
   </div>
 </body>

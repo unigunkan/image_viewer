@@ -11,39 +11,6 @@ let i;
 let d;
 
 /**
- * Not used
- * @param {Uint8Array} input
- */
-function encode(input) {
-  var keyStr =
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-  var output = '';
-  var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
-  var i = 0;
-
-  while (i < input.length) {
-    chr1 = input[i++];
-    chr2 = i < input.length ? input[i++] : Number.NaN;  // Not sure if the index
-    chr3 =
-        i < input.length ? input[i++] : Number.NaN;  // checks are needed here
-
-    enc1 = chr1 >> 2;
-    enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-    enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-    enc4 = chr3 & 63;
-
-    if (isNaN(chr2)) {
-      enc3 = enc4 = 64;
-    } else if (isNaN(chr3)) {
-      enc4 = 64;
-    }
-    output += keyStr.charAt(enc1) + keyStr.charAt(enc2) + keyStr.charAt(enc3) +
-        keyStr.charAt(enc4);
-  }
-  return output;
-}
-
-/**
  * @param {FileSystemFileHandle} file_handle
  * @returns {Promise<string>}
  */
@@ -88,31 +55,33 @@ async function getFirstImageInNestedDir(handle) {
 
 async function loadCoverImages() {
   const dir = await self.chooseFileSystemEntries({type: 'openDirectory'});
+  const coverDivPromises = [];
   for await (const entry of dir.getEntries()) {
-    getFirstImageInNestedDir(entry).then(
-        imageHandle => testAddImage(imageHandle));
+    coverDivPromises.push(new Promise((resolve, reject) => {
+      getFirstImageInNestedDir(entry).then(
+          imageHandle => resolve(createCoverDiv(entry, imageHandle)));
+    }));
   }
+  const coverDivs = await Promise.all(coverDivPromises);
+  coverDivs.sort((div1, div2) => {
+    return div1.handle.name.localeCompare(div2.handle.name);
+  });
+  const fragment = document.createDocumentFragment();
+  for (const div of coverDivs) {
+    fragment.append(await div);
+  }
+  document.querySelector('#books').innerHTML = '';
+  document.querySelector('#books').append(fragment);
 }
 
-async function testAddImage(fileHandle) {
-  console.log('start');
+async function createCoverDiv(handle, fileHandle) {
   const image = new Image();
   image.src = await getImageSrc(fileHandle);
-  document.querySelector('#images').prepend(image);
-  console.log('end');
-}
-
-async function testAddImages() {
-  const dir = await self.chooseFileSystemEntries({type: 'openDirectory'});
-  const entries = [];
-  for await (const entry of dir.getEntries()) {
-    entries.push(entry);
-  }
-  for (const entry of entries) {
-    if (entry.isFile) {
-      testAddImage(entry);
-    }
-  }
+  const div = document.createElement('div');
+  div.className = 'book';
+  div.append(image);
+  div.handle = handle;
+  return div;
 }
 
 function onDOMContentLoaded() {
