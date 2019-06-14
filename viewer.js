@@ -2,13 +2,41 @@
 
 const LEFT_PAGE = '#left-page';
 const RIGHT_PAGE = '#right-page';
-const state = {
+let directoryName = '';
+const pageHandles = [];
+let state = {
   currentPageIndex: 0,
+  date: new Date(),
   direction: 'RTL',
   directoryLoaded: false,
-  pageHandles: [],
   pagesPerView: 2,
 };
+
+class StateStore {
+  static loadState() {
+    if (directoryName == '') {
+      return false;
+    }
+    const savedState =
+        window.localStorage.getItem('imageviewer:' + directoryName);
+    if (!savedState) {
+      return false;
+    }
+    state = JSON.parse(savedState);
+    state.date = new Date();
+    showPage(state.currentPageIndex);
+    return true;
+  }
+
+  static saveState() {
+    if (directoryName == '') {
+      return;
+    }
+    state.date = new Date();
+    window.localStorage.setItem(
+        'imageviewer:' + directoryName, JSON.stringify(state));
+  }
+}
 
 /**
  * @param {FileSystemFileHandle} file_handle
@@ -38,38 +66,44 @@ async function setPage(elementId, pageHandle) {
  * @param {number} index
  */
 function showPage(index) {
-  if (index >= state.pageHandles.length) {
+  if (index >= pageHandles.length) {
     return;
   }
   state.currentPageIndex = index;
   const firstPage = state.direction == 'LTR' ? LEFT_PAGE : RIGHT_PAGE;
   const secondPage = state.direction == 'LTR' ? RIGHT_PAGE : LEFT_PAGE;
-  setPage(firstPage, state.pageHandles[index]);
+  setPage(firstPage, pageHandles[index]);
 
-  if (index + 1 >= state.pageHandles.length || state.pagesPerView < 2) {
+  if (index + 1 >= pageHandles.length || state.pagesPerView < 2) {
     document.querySelector(secondPage).src = '';
     return;
   }
-  setPage(secondPage, state.pageHandles[index + 1]);
+  setPage(secondPage, pageHandles[index + 1]);
+  StateStore.saveState();
 }
 
 async function loadDirectory() {
   const dir = await window.chooseFileSystemEntries({type: 'openDirectory'});
-  state.pageHandles.length = 0;
+  directoryName = dir.name;
+  pageHandles.length = 0;
   for await (const entry of dir.getEntries()) {
-    state.pageHandles.push(entry);
+    pageHandles.push(entry);
   }
-  state.pageHandles.sort((handle1, handle2) => {
+  pageHandles.sort((handle1, handle2) => {
     return handle1.name.localeCompare(handle2.name);
   })
   state.directoryLoaded = true;
-  onResize();
-  showPage(0);
+  if (StateStore.loadState()) {
+    onResize();
+  } else {
+    onResize();
+    showPage(0);
+  }
 }
 
 function adjustParity() {
   if (state.currentPageIndex % 2 == 0) {
-    showPage(Math.min(state.pageHandles.length, state.currentPageIndex + 1));
+    showPage(Math.min(pageHandles.length, state.currentPageIndex + 1));
   } else {
     showPage(Math.max(0, state.currentPageIndex - 1));
   }
@@ -85,7 +119,7 @@ function toggleFullscreen() {
 
 function showNextPage() {
   showPage(Math.min(
-      state.pageHandles.length, state.currentPageIndex + state.pagesPerView));
+      pageHandles.length, state.currentPageIndex + state.pagesPerView));
 }
 
 function showPreviousPage() {
@@ -172,7 +206,7 @@ function onKeyDown(/** @type {KeyboardEvent} */ event) {
 }
 
 function onResize() {
-  if (state.currentPageIndex >= state.pageHandles.length) {
+  if (state.currentPageIndex >= pageHandles.length) {
     return;
   }
   /** @type {HTMLImageElement} */ const page =
@@ -214,4 +248,6 @@ function onDOMContentLoaded() {
   window.addEventListener('resize', onResize);
 }
 
+// Service worker can be removed at chrome://serviceworker-internals
+navigator.serviceWorker.register('service_worker.js');
 document.addEventListener('DOMContentLoaded', onDOMContentLoaded);
