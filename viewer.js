@@ -10,6 +10,7 @@ let state = {
   direction: 'RTL',
   directoryLoaded: false,
   pagesPerView: 2,
+  parity: 'odd',  // Meaning the first page is on its own.
 };
 
 class StateStore {
@@ -69,16 +70,28 @@ function showPage(index) {
   if (index >= pageHandles.length) {
     return;
   }
+  document.querySelector('#page-number').innerHTML = String(index + 1);
+  document.querySelector('#total-page-count').innerHTML =
+      String(pageHandles.length);
   state.currentPageIndex = index;
+  let indexToShow = index;
+  if (state.pagesPerView == 2) {
+    if (state.parity == 'even') {
+      indexToShow = index - index % 2;
+    } else {
+      indexToShow = Math.max(0, index - (index + 1) % 2);
+    }
+  }
   const firstPage = state.direction == 'LTR' ? LEFT_PAGE : RIGHT_PAGE;
   const secondPage = state.direction == 'LTR' ? RIGHT_PAGE : LEFT_PAGE;
-  setPage(firstPage, pageHandles[index]);
+  setPage(firstPage, pageHandles[indexToShow]);
 
-  if (index + 1 >= pageHandles.length || state.pagesPerView < 2) {
+  if ((indexToShow == 0 && state.parity == 'odd') ||
+      indexToShow + 1 >= pageHandles.length || state.pagesPerView == 1) {
     document.querySelector(secondPage).src = '';
-    return;
+  } else {
+    setPage(secondPage, pageHandles[indexToShow + 1]);
   }
-  setPage(secondPage, pageHandles[index + 1]);
   StateStore.saveState();
 }
 
@@ -102,11 +115,8 @@ async function loadDirectory() {
 }
 
 function adjustParity() {
-  if (state.currentPageIndex % 2 == 0) {
-    showPage(Math.min(pageHandles.length, state.currentPageIndex + 1));
-  } else {
-    showPage(Math.max(0, state.currentPageIndex - 1));
-  }
+  state.parity = (state.parity == 'even') ? 'odd' : 'even';
+  showPage(state.currentPageIndex);
 }
 
 function showNextPage() {
@@ -144,7 +154,7 @@ function setPagesPerView(/** @type {number} */ pagesPerView) {
   document.querySelectorAll('.page-image')
       .forEach(
           (/** @type{HTMLElement} */ element) => element.style['max-width'] =
-              `${100 / state.pagesPerView}%`);
+              `${100 / state.pagesPerView}vw`);
   showPage(state.currentPageIndex);
 }
 
@@ -156,7 +166,49 @@ function goToFirstPage() {
   showPage(0);
 }
 
+function goToLastPage() {
+  showPage(pageHandles.length - 1);
+}
+
+function goToLeftmostPage() {
+  if (state.direction == 'LTR') {
+    goToFirstPage();
+  } else {
+    goToLastPage();
+  }
+}
+
+function goToRightmostPage() {
+  if (state.direction == 'RTL') {
+    goToFirstPage();
+  } else {
+    goToLastPage();
+  }
+}
+
+function fastForward(direction) {
+  const jump = 20;
+  if ((state.direction == 'LTR' && direction == 'left') ||
+      (state.direction == 'RTL' && direction == 'right')) {
+    showPage(Math.max(0, state.currentPageIndex - jump));
+  } else {
+    showPage(Math.min(pageHandles.length - 1, state.currentPageIndex + jump));
+  }
+}
+
+function fastForwardLeft() {
+  fastForward('left');
+}
+
+function fastForwardRight() {
+  fastForward('right');
+}
+
 function onLeftPageClicked(/** @type {MouseEvent} */ event) {
+  if (state.currentPageIndex == 0) {
+    showNextPage();
+    return;
+  }
   if (state.pagesPerView == 1 && state.direction == 'LTR') {
     if (event.offsetX <
         /** @type {HTMLImageElement} */ (event.target).width / 2) {
@@ -170,6 +222,10 @@ function onLeftPageClicked(/** @type {MouseEvent} */ event) {
 }
 
 function onRightPageClicked(/** @type {MouseEvent} */ event) {
+  if (state.currentPageIndex == 0) {
+    showNextPage();
+    return;
+  }
   if (state.pagesPerView == 1 && state.direction == 'RTL') {
     if (event.offsetX <
         /** @type {HTMLImageElement} */ (event.target).width / 2) {
@@ -233,8 +289,14 @@ function onDOMContentLoaded() {
       .addEventListener('mouseup', toggleDirection);
   document.querySelector('#toggle-pages-shown')
       .addEventListener('mouseup', togglepagesPerView);
-  document.querySelector('#go-to-first-page')
-      .addEventListener('mouseup', goToFirstPage);
+  document.querySelector('#skip-left')
+      .addEventListener('mouseup', goToLeftmostPage);
+  document.querySelector('#fast-left')
+      .addEventListener('mouseup', fastForwardLeft);
+  document.querySelector('#fast-right')
+      .addEventListener('mouseup', fastForwardRight);
+  document.querySelector('#skip-right')
+      .addEventListener('mouseup', goToRightmostPage);
   window.addEventListener('resize', onResize);
 }
 

@@ -9,11 +9,14 @@ const PRECACHE_URLS = [
   'viewer.html',
   'viewer.js',
   'Roboto-Thin.ttf',
-  'images/agenda.png',
+  'images/book.png',
   'images/arrow_right.png',
+  'images/fast_left.png',
+  'images/fast_right.png',
   'images/folder_open.png',
-  'images/one.png',
   'images/reader.png',
+  'images/skip_left.png',
+  'images/skip_right.png',
 ];
 
 // The install handler takes care of precaching the resources we always need.

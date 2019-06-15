@@ -35,8 +35,8 @@
 
     .page-image {
       float: left;
-      max-height: 100%;
-      max-width: 50%;
+      max-height: 100vh;
+      max-width: 50vw;
     }
 
     #pages {
@@ -58,13 +58,13 @@
     }
 
     .toolbar-button {
-      color: white;
       cursor: pointer;
-      font-size: 25px;
       padding: 10px;
     }
 
     #toolbar {
+      color: white;
+      font-size: 25px;
       padding: 10px;
     }
   </style>
@@ -82,16 +82,25 @@
         Direction
       </a>
       <a id="adjust-parity" class="toolbar-button">
-        <img class="button-icon" src="images/agenda.png" />
+        <img class="button-icon" src="images/reader.png" />
         Parity
       </a>
       <a id="toggle-pages-shown" class="toolbar-button">
-        <img class="button-icon" src="images/reader.png" />
-        Number of pages
+        <img class="button-icon" src="images/book.png" />
+        View mode
       </a>
-      <a id="go-to-first-page" class="toolbar-button">
-        <img class="button-icon" src="images/one.png" />
-        First page
+      <a id="skip-left" class="toolbar-button">
+        <img class="button-icon" src="images/skip_left.png" />
+      </a>
+      <a id="fast-left" class="toolbar-button">
+        <img class="button-icon" src="images/fast_left.png" />
+      </a>
+      <span id="page-number"></span> / <span id="total-page-count"></span>
+      <a id="fast-right" class="toolbar-button">
+        <img class="button-icon" src="images/fast_right.png" />
+      </a>
+      <a id="skip-right" class="toolbar-button">
+        <img class="button-icon" src="images/skip_right.png" />
       </a>
     </div>
     <div id="pages">
